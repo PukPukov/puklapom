@@ -348,17 +348,22 @@
         </profile>
         <profile>
             <!-- 
-            Shade plugin deletes compile scoped dependencies from parent POM (specifically its dependency-reduces-pom.xml
+            Shade plugin deletes compile scoped dependencies from parent POM (specifically its dependency-reduced-pom.xml
             creation function) (I am unsure it is bug or "intended" behaviour). However, outside of parent POM this function is
             easily default behaviour. So it needed to be disabled for this POM itself specifically. The obscure part is that
             any your trivial configuration that you are going to use to disable reduction will also inherit to child POM, so
             reduction becomes non-default. The workaround is to make this control explicitly not inheritable via profiles that
             trigger on something that is outside of inheritance scope, like some file in the project directory.
+            
+            You also need to create this file yourself for every parent POM you have. This effectively creates generic
+            mechanism of non-inheritable (self) parent configuration, with the cost of using obscure hack and placing
+            boilerplate indicator file near every parent POM. Wish maven had <self> tag for doing this properly (and/or shade
+            plugin <createDependencyReducedFile> configuration accepted "jar" value)...
             -->
-            <id>disable-packaged-but-not-needed-by-parent-pom-itself-plugins</id>
+            <id>parent-itself-settings</id>
             <activation>
                 <file>
-                    <exists>.mvn/direct-settings/no-dependency-reduce</exists> <!-- #RELATIVE_PATHS -->
+                    <exists>.mvn/.parent</exists>
                 </file>
             </activation>
             <build>
