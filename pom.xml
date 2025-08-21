@@ -7,7 +7,7 @@
     <groupId>ru.ancap</groupId>
     <artifactId>puklapom</artifactId>
     <packaging>pom</packaging>
-    <version>1.3.1</version>
+    <version>1.3.2</version>
 
     <properties>
         <!-- CLI Args -->
@@ -24,6 +24,7 @@
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
         <build-helper-maven-plugin.version>3.6.1</build-helper-maven-plugin.version>
         <flatten-maven-plugin.version>1.7.2</flatten-maven-plugin.version>
+        <license-maven-plugin.version>2.6.0</license-maven-plugin.version>
 
         <!-- Dependencies versions.Plugins.Verification -->
         <maven-enforcer-plugin.version>3.6.1</maven-enforcer-plugin.version>
@@ -58,9 +59,12 @@
         <!-- Internal.Release properties -->
         <enforcer.skip>true</enforcer.skip>
         <jacoco.skip>true</jacoco.skip>
+        <maven.test.skip>true</maven.test.skip>
 
         <!-- Boilerplate -->
         <encoding>UTF-8</encoding>
+        <project.build.sourceEncoding>${encoding}</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>${encoding}</project.reporting.outputEncoding>
     </properties>
 
     <build>
@@ -84,6 +88,37 @@
                     <artifactId>maven-shade-plugin</artifactId>
                     <version>${maven-shade-plugin.version}</version>
 
+                    <configuration>
+                        <filters>
+                            <filter>
+                                <artifact>*:*</artifact>
+                                <excludes>
+                                    <exclude>META-INF/*.SF</exclude>
+                                    <exclude>META-INF/*.DSA</exclude>
+                                    <exclude>META-INF/*.RSA</exclude>
+                                    <exclude>module-info.class</exclude>
+                                    <exclude>META-INF/versions/**</exclude>
+                                    <exclude>META-INF/MANIFEST.MF</exclude>
+                                    <exclude>META-INF/takari/export-package</exclude>
+                                    
+                                    <!-- its unfeasible to comply with attribution requirements using generic merge of everything
+                                         via generic transformers. We need to use licence plugin. -->
+                                    <exclude>META-INF/LICENSE*</exclude>
+                                    <exclude>META-INF/NOTICE*</exclude>
+                                    <exclude>META-INF/DEPENDENCIES</exclude>
+                                    <exclude>META-INF/COPYRIGHT</exclude>
+                                    <exclude>META-INF/license*</exclude>
+                                    <exclude>META-INF/notice*</exclude>
+                                    <exclude>META-INF/copyright*</exclude>
+                                </excludes>
+                            </filter>
+                        </filters>
+
+                        <transformers>
+                            <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                        </transformers>
+                    </configuration>
+                    
                     <executions>
                         <execution>
                             <phase>package</phase>
@@ -166,6 +201,24 @@
                             <goals>
                                 <goal>clean</goal>
                             </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <version>${license-maven-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>generate-third-party-licenses</id>
+                            <phase>generate-resources</phase>
+                            <goals>
+                                <goal>add-third-party</goal>
+                            </goals>
+                            <configuration>
+                                <useMissingFile>true</useMissingFile>
+                                <includedScopes>compile</includedScopes>
+                            </configuration>
                         </execution>
                     </executions>
                 </plugin>
@@ -283,13 +336,6 @@
             </resource>
         </resources>
     </build>
-
-    <repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
 
     <dependencyManagement>
         <dependencies>
@@ -465,12 +511,13 @@
             <activation>
                 <property>
                     <name>release</name>
-                    <value>true</value>
+                    <value>!false</value>
                 </property>
             </activation>
             <properties>
                 <!-- Internal -->
                 <!-- Internal.Release properties -->
+                <maven.test.skip>false</maven.test.skip>
                 <enforcer.skip>false</enforcer.skip>
                 <jacoco.skip>false</jacoco.skip>
             </properties>
