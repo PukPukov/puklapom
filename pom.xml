@@ -7,7 +7,7 @@
     <groupId>ru.ancap</groupId>
     <artifactId>puklapom</artifactId>
     <packaging>pom</packaging>
-    <version>1.3.3</version>
+    <version>1.4</version>
 
     <properties>
         <!-- CLI Args -->
@@ -19,6 +19,8 @@
         <!-- Dependencies versions.Plugins -->
         <!-- Dependencies versions.Plugins.Core -->
         <takari-lifecycle.version>2.3.2</takari-lifecycle.version>
+        <maven-install-plugin.version>3.1.4</maven-install-plugin.version>
+        <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
         <maven-resources-plugin.version>3.4.0</maven-resources-plugin.version>
         <maven-shade-plugin.version>3.6.1</maven-shade-plugin.version>
         <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
@@ -30,6 +32,9 @@
         <maven-enforcer-plugin.version>3.6.2</maven-enforcer-plugin.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version> <!-- 2.x pin, reason unknown -->
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
+
+        <!-- Dependencies versions.Maven dependencies.Verification -->
+        <checker-framework.version>3.52.1</checker-framework.version>
         
         <!-- Dependencies versions.Maven dependencies.Libraries -->
         <apache-commons-lang3.version>3.20.0</apache-commons-lang3.version>
@@ -57,10 +62,14 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <!-- Internal.Release properties -->
-        <enforcer.skip>true</enforcer.skip>
-        <jacoco.skip>true</jacoco.skip>
-        <maven.test.skip>true</maven.test.skip>
-
+        <enforcer.run>true</enforcer.run>
+        <jacoco.run>true</jacoco.run>
+        <maven.test.run>true</maven.test.run>
+        <checker-framework.run>true</checker-framework.run>
+        <useDefaultLifecycle>true</useDefaultLifecycle>
+        <useTakariLifecycle>false</useTakariLifecycle>
+        <jarLifecycleType>null</jarLifecycleType>
+        
         <!-- Boilerplate -->
         <encoding>UTF-8</encoding>
         <project.build.sourceEncoding>${encoding}</project.build.sourceEncoding>
@@ -71,18 +80,98 @@
         <pluginManagement>
             <plugins>
                 <!-- Core plugins -->
+                
+                <!-- Simplified lifecycle for builds without checker -->
                 <plugin>
                     <groupId>io.takari.maven.plugins</groupId>
                     <artifactId>takari-lifecycle-plugin</artifactId>
                     <version>${takari-lifecycle.version}</version>
-                    <extensions>true</extensions>
+                    <extensions>${useTakariLifecycle}</extensions>
                     <configuration>
                         <source>${java.version}</source>
                         <target>${java.version}</target>
                         <encoding>${encoding}</encoding>
-                        <proc>proc</proc>
+                        <proc>proc</proc> <!-- annotation processor if I understand correctly -->
+                        
+                        <skip>${useDefaultLifecycle}</skip>
+                        <skipMain>${useDefaultLifecycle}</skipMain>
                     </configuration>
                 </plugin>
+
+                <!-- Full lifecycle -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven-compiler-plugin.version}</version>
+                    <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                        <encoding>${encoding}</encoding>
+                        
+                        <skip>${useTakariLifecycle}</skip>
+                        <skipMain>${useTakariLifecycle}</skipMain>
+                        
+                        <!-- Checker Framework -->
+                        <fork>true</fork>
+                        <compilerArgument>-Xlint:all</compilerArgument>
+                        <showWarnings>true</showWarnings>
+
+                        <annotationProcessorPaths combine.children="append">
+                            <path>
+                                <groupId>org.checkerframework</groupId>
+                                <artifactId>checker</artifactId>
+                                <version>${checker-framework.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
+                        
+                        <annotationProcessors>
+                            <!-- Language -->
+                            <annotationProcessor>
+                                org.checkerframework.common.subtyping.SubtypingChecker
+                            </annotationProcessor>
+                            <annotationProcessor>
+                                org.checkerframework.checker.nullness.NullnessChecker
+                            </annotationProcessor>
+                            <annotationProcessor>
+                                org.checkerframework.checker.resourceleak.ResourceLeakChecker
+                            </annotationProcessor>
+                            
+                            <!-- Linter-like -->
+                            <annotationProcessor>
+                                org.checkerframework.checker.interning.InterningChecker
+                            </annotationProcessor>
+                            <annotationProcessor>
+                                org.checkerframework.checker.formatter.FormatterChecker
+                            </annotationProcessor>
+                            <annotationProcessor>
+                                org.checkerframework.common.value.ValueChecker
+                            </annotationProcessor>
+                        </annotationProcessors>
+                        
+                        <!-- Fuck brian goetz. -->
+                        <compilerArgs combine.children="append">
+                            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
+                            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
+                            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
+                            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
+                            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
+                            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
+                            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
+                            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
+                            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
+                        </compilerArgs>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>${maven-install-plugin.version}</version>
+                    <configuration>
+                        <skip>${useTakariLifecycle}</skip>
+                    </configuration>
+                </plugin>
+                
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
@@ -299,6 +388,14 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
             </plugin>
             <plugin>
@@ -399,6 +496,16 @@
 
             <!-- Language -->
             <dependency>
+                <groupId>org.checkerframework</groupId>
+                <artifactId>checker-qual</artifactId>
+                <version>${checker-framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.checkerframework</groupId>
+                <artifactId>checker</artifactId>
+                <version>${checker-framework.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
@@ -441,6 +548,14 @@
         </dependency>
 
         <!-- Language -->
+        <dependency>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker-qual</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -507,6 +622,26 @@
             </dependencies>
         </profile>
         <profile>
+            <id>iteration</id>
+            <activation>
+                <property>
+                    <name>release</name>
+                    <value>false</value>
+                </property>
+            </activation>
+            <properties>
+                <!-- Internal -->
+                <!-- Internal.Release properties -->
+                <maven.test.run>false</maven.test.run>
+                <enforcer.run>false</enforcer.run>
+                <jacoco.run>false</jacoco.run>
+                <checker-framework.run>false</checker-framework.run>
+                <useDefaultLifecycle>false</useDefaultLifecycle>
+                <useTakariLifecycle>true</useTakariLifecycle>
+                <jarLifecycleType>takari-jar</jarLifecycleType>
+            </properties>
+        </profile>
+        <profile>
             <id>release</id>
             <activation>
                 <property>
@@ -517,9 +652,9 @@
             <properties>
                 <!-- Internal -->
                 <!-- Internal.Release properties -->
-                <maven.test.skip>false</maven.test.skip>
-                <enforcer.skip>false</enforcer.skip>
-                <jacoco.skip>false</jacoco.skip>
+                <useDefaultLifecycle>true</useDefaultLifecycle>
+                <useTakariLifecycle>false</useTakariLifecycle>
+                <jarLifecycleType>jar</jarLifecycleType>
             </properties>
         </profile>
     </profiles>
