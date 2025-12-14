@@ -38,7 +38,7 @@
         
         <!-- Dependencies versions.Maven dependencies.Libraries -->
         <apache-commons-lang3.version>3.20.0</apache-commons-lang3.version>
-        <ancap-commons.version>1.9.20</ancap-commons.version>
+        <ancap-commons.version>1.9.21</ancap-commons.version>
 
         <!-- Dependencies versions.Maven dependencies.Extended -->
         <guava.version>33.5.0-jre</guava.version>
@@ -62,10 +62,9 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <!-- Internal.Release properties -->
-        <enforcer.run>true</enforcer.run>
-        <jacoco.run>true</jacoco.run>
-        <maven.test.run>true</maven.test.run>
-        <checker-framework.run>true</checker-framework.run>
+        <enforcer.skip>false</enforcer.skip>
+        <jacoco.skip>false</jacoco.skip>
+        <tests.skip>false</tests.skip>
         <useDefaultLifecycle>true</useDefaultLifecycle>
         <useTakariLifecycle>false</useTakariLifecycle>
         <jarLifecycleType>null</jarLifecycleType>
@@ -350,6 +349,7 @@
                         <testFailureIgnore>false</testFailureIgnore>
                         <forkCount>1C</forkCount>
                         <reuseForks>true</reuseForks>
+                        <skip>${tests.skip}</skip>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -630,10 +630,9 @@
             <properties>
                 <!-- Internal -->
                 <!-- Internal.Release properties -->
-                <maven.test.run>false</maven.test.run>
-                <enforcer.run>false</enforcer.run>
-                <jacoco.run>false</jacoco.run>
-                <checker-framework.run>false</checker-framework.run>
+                <enforcer.skip>true</enforcer.skip>
+                <jacoco.skip>true</jacoco.skip>
+                <tests.skip>true</tests.skip>
                 <useDefaultLifecycle>false</useDefaultLifecycle>
                 <useTakariLifecycle>true</useTakariLifecycle>
                 <jarLifecycleType>takari-jar</jarLifecycleType>
