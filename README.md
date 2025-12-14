@@ -5,12 +5,16 @@ Highly opinionated parent POM for my projects.
 
 1. Sources are self-documented and small. Read them.
 
-### Build
+## Build/installation
 
-### System requirements
+### Build requirements
 
 - JDK 21
 - Maven 3
+
+### Command
+
+`mvn clean install`
 
 ## Some configurations documentation
 
