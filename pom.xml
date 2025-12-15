@@ -602,10 +602,10 @@
             </dependencies>
         </profile>
         <profile>
-            <id>top-level</id>
+            <id>use-ancap-commons</id>
             <activation>
                 <property>
-                    <name>puklapom.top-level</name>
+                    <name>puklapom.use-ancap-commons</name>
                     <value>!false</value>
                 </property>
             </activation>
