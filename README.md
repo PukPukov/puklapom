@@ -4,6 +4,7 @@ Highly opinionated parent POM for my projects.
 ### Requirements
 
 1. Sources are self-documented and small. Read them.
+2. You need to copy jvm.config from .mvn/ to your project thanks to brian goetz and maven bug that loses compilation failure messages in certain conditions.
 
 ## Build/installation
 
