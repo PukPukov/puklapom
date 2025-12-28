@@ -14,6 +14,7 @@
         <release>true</release>
 
         <java.version>25</java.version>
+        <qualifiers.raw>null</qualifiers.raw>
 
         <!-- Dependencies versions -->
         <!-- Dependencies versions.Plugins -->
@@ -248,6 +249,17 @@
                                 <goal>add-source</goal>
                             </goals>
                             <!-- The actual sources are added by children -->
+                        </execution>
+                        <execution>
+                            <id>clean-qualifiers</id>
+                            <goals><goal>regex-property</goal></goals>
+                            <configuration>
+                                <name>qualifiers</name> <!-- Имя новой переменной -->
+                                <value>${qualifiers.raw}</value>
+                                <regex>\s+</regex> <!-- Удаляем все пробелы и переносы -->
+                                <replacement/>
+                                <failIfNoMatch>false</failIfNoMatch>
+                            </configuration>
                         </execution>
                     </executions>
                 </plugin>
