@@ -214,8 +214,12 @@
                                 <outputDirectory>${project.build.directory}/${project.build.finalName}</outputDirectory>
                                 <resources>
                                     <resource>
-                                        <directory>src/main/resources</directory>
+                                        <directory>src/main/resources/text</directory>
                                         <filtering>true</filtering>
+                                    </resource>
+                                    <resource>
+                                        <directory>src/main/resources/bin</directory>
+                                        <filtering>false</filtering>
                                     </resource>
                                 </resources>
                             </configuration>
@@ -422,8 +426,12 @@
 
         <resources>
             <resource>
-                <directory>src/main/resources</directory>
+                <directory>src/main/resources/text</directory>
                 <filtering>true</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources/bin</directory>
+                <filtering>false</filtering>
             </resource>
         </resources>
     </build>
