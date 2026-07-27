@@ -628,7 +628,7 @@
             <dependencies>
                 <!-- Libraries -->
                 <dependency> <!-- LOCAL -->
-                    <groupId>ru.ancap</groupId>
+                    <groupId>ru.pukpukov</groupId>
                     <artifactId>AncapCommons</artifactId>
                     <version>${ancap-commons.version}</version>
                     <scope>compile</scope>
