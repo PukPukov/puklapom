@@ -112,7 +112,10 @@
                         <skipMain>${useTakariLifecycle}</skipMain>
 
                         <!-- Checker Framework -->
-                        <compilerArgument>-Xlint:all</compilerArgument>
+                        <compilerArgs>
+                            <arg>-AskipFiles=/src/test/java/</arg>
+                            <arg>-Xlint:all</arg>
+                        </compilerArgs>
                         <showWarnings>true</showWarnings>
 
                         <annotationProcessorPaths combine.children="append">
