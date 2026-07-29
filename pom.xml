@@ -15,6 +15,7 @@
 
         <java.version>25</java.version>
         <qualifiers.raw>null</qualifiers.raw>
+        <main>ru.pukpukov.puklapom.Main</main>
 
         <!-- Dependencies versions -->
         <!-- Dependencies versions.Plugins -->
@@ -160,7 +161,7 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
                     <version>${maven-shade-plugin.version}</version>
-
+                    
                     <configuration>
                         <filters>
                             <filter>
@@ -174,8 +175,9 @@
                                     <exclude>META-INF/MANIFEST.MF</exclude>
                                     <exclude>META-INF/takari/export-package</exclude>
                                     
-                                    <!-- its unfeasible to comply with attribution requirements using generic merge of everything
-                                         via generic transformers. We need to use licence plugin. -->
+                                    <!-- it's unfeasible to comply with attribution requirements using generic merge of everything
+                                         via generic transformers. We need to use license plugin and write our own third-party
+                                         notice. -->
                                     <exclude>META-INF/LICENSE*</exclude>
                                     <exclude>META-INF/NOTICE*</exclude>
                                     <exclude>META-INF/DEPENDENCIES</exclude>
@@ -186,9 +188,11 @@
                                 </excludes>
                             </filter>
                         </filters>
-
                         <transformers>
                             <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <mainClass>${main}</mainClass>
+                            </transformer>
                         </transformers>
                     </configuration>
                     
